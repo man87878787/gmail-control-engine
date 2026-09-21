@@ -34,7 +34,7 @@ try {
       rows.push({...item,intelligence:analyzeMessage(message)});
     }
     const rank={high:0,normal:1,low:2};
-    rows.sort((a,b)=>(rank[a.intelligence?.urgency]??9)-(rank[b.intelligence?.urgency]??9));
+    rows.sort((a,b)=>(b.intelligence?.priorityScore??-1)-(a.intelligence?.priorityScore??-1) || (rank[a.intelligence?.urgency]??9)-(rank[b.intelligence?.urgency]??9));
     out({query,count:rows.length,messages:rows});
   } else {
     out({commands:{
