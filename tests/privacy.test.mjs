@@ -1,0 +1,3 @@
+import test from "node:test";import assert from "node:assert/strict";import { scrubObject, scrubText } from "../src/privacy.mjs";
+test("privacy scrubber masks secrets and PII",()=>{const x=scrubText("Email person@example.com phone 614-555-1212 token ghp_123456789012345678901234567890");assert.ok(!x.includes("614-555-1212"));assert.ok(!x.includes("ghp_"));assert.ok(x.includes("p***@example.com"))});
+test("privacy scrubber redacts secret-valued keys",()=>{const x=scrubObject({access_token:"abc",nested:{password:"secret"},note:"safe"});assert.equal(x.access_token,"[REDACTED_SECRET]");assert.equal(x.nested.password,"[REDACTED_SECRET]");assert.equal(x.note,"safe")});
