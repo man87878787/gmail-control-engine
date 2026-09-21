@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import { installAssistantRoutes, installEventRoutes } from "./assistant-api.mjs";
 import {
   accountProfile,
   authorizationUrl,
@@ -65,7 +66,7 @@ import {
   publicError,
 } from "./utils.mjs";
 
-const VERSION = "2.0.0";
+const VERSION = "4.0.0";
 const app = express();
 const host = process.env.HOST || "127.0.0.1";
 const port = clampInt(process.env.PORT, 1024, 65535, 4317);
@@ -156,7 +157,10 @@ app.get("/oauth/callback", async (req, res) => {
   }
 });
 
+installEventRoutes(app);
+
 app.use("/api", requireAgentKey);
+installAssistantRoutes(app);
 
 app.get("/api/agent/status", (_req, res) => {
   const settings = getSettings();
