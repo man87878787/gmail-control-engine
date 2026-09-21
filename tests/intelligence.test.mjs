@@ -15,3 +15,16 @@ test("thread intelligence rolls up messages",()=> {
   const a=analyzeThread([{text:"Your order shipped."},{text:"Could you confirm delivery?"}]);
   assert.equal(a.messageCount,2); assert.equal(a.replyLikely,true); assert.ok(a.openRequests.length);
 });
+
+test("intelligence extracts contact details and sensitive-data warnings", () => {
+ const a=analyzeMessage({from:"person@example.com",subject:"Account check",text:"Call 614-555-1212 or email help@example.org. Never send your password. Please confirm."});
+ assert.ok(a.entities.phones.includes("614-555-1212"));
+ assert.ok(a.entities.emails.includes("help@example.org"));
+ assert.equal(a.safety.sensitiveDataMentioned,true);
+ assert.ok(a.priorityScore>0);
+});
+test("suspicious language is surfaced without asserting fraud", () => {
+ const a=analyzeMessage({from:"alerts@example.com",subject:"Action required",text:"Verify your account. Click here immediately."});
+ assert.equal(a.safety.suspiciousLanguage,true);
+ assert.equal(a.urgency,"high");
+});
