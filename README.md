@@ -298,3 +298,28 @@ Use Gmail Control Engine only with accounts and recipients you are authorized to
 ## License
 
 MIT
+
+
+## Inbox Intelligence (3.0)
+
+The engine now includes a local, deterministic understanding layer for inbox triage. It does **not** send email content to a third-party AI service.
+
+It can:
+- summarize message text;
+- detect likely requests and whether a reply is expected;
+- classify common payment, meeting, account/security, order, and support mail;
+- flag urgency/deadline language;
+- extract dates, money amounts, and links;
+- identify likely automated/no-reply mail;
+- roll an entire conversation into a thread-level summary;
+- triage an inbox and sort higher-priority messages first.
+
+Commands:
+
+```text
+npm run smart -- understand <account> <message-id>
+npm run smart -- thread <account> <thread-id>
+npm run smart -- triage <account> "in:inbox is:unread" 20
+```
+
+The intelligence output is machine-readable JSON so another authorized agent can use it as context. Classification is heuristic, so consequential actions should still be reviewed rather than treated as infallible.
