@@ -1,0 +1,2 @@
+import test from "node:test";import assert from "node:assert/strict";import { cosine, hashEmbedding } from "../src/semantic-store.mjs";
+test("hash embeddings are deterministic and favor related text",()=>{const a=hashEmbedding("send code files last week"),b=hashEmbedding("code files were sent last week"),c=hashEmbedding("pizza weather tomorrow");assert.deepEqual(a,hashEmbedding("send code files last week"));assert.ok(cosine(a,b)>cosine(a,c))});

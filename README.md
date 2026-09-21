@@ -323,3 +323,33 @@ npm run smart -- triage <account> "in:inbox is:unread" 20
 ```
 
 The intelligence output is machine-readable JSON so another authorized agent can use it as context. Classification is heuristic, so consequential actions should still be reviewed rather than treated as infallible.
+
+
+## Production Assistant Architecture (4.0)
+
+Version 4 adds a local-first assistant layer without removing the existing queue and safety controls.
+
+- **Semantic memory:** local SQLite vector index with a dependency-free deterministic embedding fallback, plus adapters for Ollama or a local embedding HTTP service (including MiniLM/ONNX servers).
+- **Safe action staging:** replies, archive, labels, and trash operations are staged first. High-risk actions such as sending and trashing require explicit approval before execution.
+- **Thread DAGs:** RFC Message-ID, In-Reply-To, and References headers are mapped into parent/child reply graphs with unresolved-request and bottleneck signals.
+- **Local LLM JSON mode:** optional Ollama analysis uses temperature 0 and strict JSON parsing. No cloud model fallback is enabled by default.
+- **Privacy guardrails:** reusable PII/secret scrubbers redact credentials, phone numbers, long account/card-like numbers, addresses, and email identifiers from log-safe payloads.
+- **Push ingestion:** Gmail watch/history support processes Pub/Sub notifications using a durable history cursor and can index newly received mail immediately.
+- **Plugin bus:** isolated event hooks with timeouts allow local extensions without modifying the core pipeline.
+- **Resilience:** shared exponential-backoff utilities classify transient HTTP/network failures and honor Retry-After when available.
+- **Unified inbox:** multiple configured Gmail profiles can be merged into one priority-sorted local view while preserving account identity.
+- **Adversarial benchmark:** synthetic edge cases are scored in CI and fail the build if accuracy falls below the configured threshold.
+
+### Assistant API
+
+All `/api/assistant/*` routes remain behind the existing local agent-key authentication boundary. Important endpoints include unified inbox, semantic indexing/search, thread graphs, local deep analysis, Gmail watch setup, and the staged-action queue.
+
+The Gmail Pub/Sub receiver is `POST /events/gmail`. It is disabled unless `GMAIL_PUSH_TOKEN` is configured, and it validates that token before processing a notification. Keep the service bound to localhost unless you deliberately place it behind a secure authenticated ingress.
+
+### Semantic embedding providers
+
+The default `hash` provider is offline, deterministic, and dependency-free. For stronger semantic retrieval, set `LOCAL_EMBEDDING_PROVIDER=ollama` and run a local embedding model, or set it to `http` and point `LOCAL_EMBEDDING_URL` at a local MiniLM/ONNX embedding service. Email content stays local in both modes.
+
+### Human-in-the-loop actions
+
+High-impact staged actions are intentionally blocked until approved. The engine currently supports staged draft replies, send replies, archive, trash, and label changes. Permanent delete is not exposed by the assistant API.

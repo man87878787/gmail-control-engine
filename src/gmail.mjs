@@ -10,6 +10,7 @@ import {
   publicError,
   sanitizeHeader,
 } from "./utils.mjs";
+import { withRetry } from "./retry.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -455,6 +456,7 @@ export async function readMessage(accountId, messageId) {
     date: h.date || "",
     messageIdHeader: h["message-id"] || "",
     references: h.references || "",
+    inReplyTo: h["in-reply-to"] || "",
     snippet: data.snippet || "",
     labelIds: data.labelIds || [],
     text: body.text,
@@ -498,6 +500,83 @@ export async function modifyMessageLabels(accountId, messageId, addLabelIds = []
     requestBody: { addLabelIds, removeLabelIds },
   });
   return { id: data.id, labelIds: data.labelIds || [] };
+}
+
+
+export async function readThread(accountId, threadId) {
+  const gmail = await api(accountId);
+  const { data } = await withRetry(() => gmail.users.threads.get({ userId: "me", id: threadId, format: "full" }));
+  return (data.messages || []).map((message) => {
+    const h = headerMap(message.payload?.headers);
+    const body = bodyFromPayload(message.payload);
+    return {
+      id: message.id || "",
+      threadId: message.threadId || threadId,
+      from: h.from || "",
+      to: h.to || "",
+      cc: h.cc || "",
+      subject: h.subject || "(no subject)",
+      date: h.date || "",
+      messageIdHeader: h["message-id"] || "",
+      inReplyTo: h["in-reply-to"] || "",
+      references: h.references || "",
+      snippet: message.snippet || "",
+      labelIds: message.labelIds || [],
+      text: body.text,
+      html: body.html,
+    };
+  });
+}
+
+export async function watchInbox(accountId, topicName) {
+  if (!String(topicName || "").startsWith("projects/")) throw new Error("A Google Pub/Sub topic name is required.");
+  const gmail = await api(accountId);
+  const { data } = await withRetry(() => gmail.users.watch({
+    userId: "me",
+    requestBody: { topicName: String(topicName), labelIds: ["INBOX"], labelFilterBehavior: "INCLUDE" },
+  }));
+  return { historyId: data.historyId || "", expiration: data.expiration || "" };
+}
+
+export async function stopInboxWatch(accountId) {
+  const gmail = await api(accountId);
+  await withRetry(() => gmail.users.stop({ userId: "me" }));
+  return { ok: true };
+}
+
+export async function historySince(accountId, startHistoryId) {
+  if (!startHistoryId) throw new Error("startHistoryId is required.");
+  const gmail = await api(accountId);
+  const out = { historyId: String(startHistoryId), messagesAdded: [], messagesDeleted: [], labelsAdded: [], labelsRemoved: [] };
+  let pageToken = "";
+  do {
+    const { data } = await withRetry(() => gmail.users.history.list({
+      userId: "me",
+      startHistoryId: String(startHistoryId),
+      historyTypes: ["messageAdded", "messageDeleted", "labelAdded", "labelRemoved"],
+      maxResults: 500,
+      ...(pageToken ? { pageToken } : {}),
+    }));
+    for (const row of data.history || []) {
+      out.messagesAdded.push(...(row.messagesAdded || []));
+      out.messagesDeleted.push(...(row.messagesDeleted || []));
+      out.labelsAdded.push(...(row.labelsAdded || []));
+      out.labelsRemoved.push(...(row.labelsRemoved || []));
+    }
+    if (data.historyId) out.historyId = String(data.historyId);
+    pageToken = data.nextPageToken || "";
+  } while (pageToken);
+  return out;
+}
+
+export async function trashMessage(accountId, messageId) {
+  const gmail = await api(accountId);
+  const { data } = await withRetry(() => gmail.users.messages.trash({ userId: "me", id: messageId }));
+  return { id: data.id || messageId, threadId: data.threadId || "", labelIds: data.labelIds || [] };
+}
+
+export async function archiveMessage(accountId, messageId) {
+  return modifyMessageLabels(accountId, messageId, [], ["INBOX"]);
 }
 
 export function gmailErrorInfo(error) {

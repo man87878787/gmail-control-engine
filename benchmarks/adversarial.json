@@ -1,0 +1,123 @@
+[
+  {
+    "name": "urgent invoice request",
+    "message": {
+      "from": "billing@example.com",
+      "subject": "Final notice: invoice",
+      "text": "Please confirm payment by tomorrow. Balance due is $42.50."
+    },
+    "expected": {
+      "category": "payment",
+      "urgency": "high",
+      "replyLikely": true
+    }
+  },
+  {
+    "name": "automated shipping",
+    "message": {
+      "from": "no-reply@shop.example",
+      "subject": "Your order shipped",
+      "text": "Tracking information is now available."
+    },
+    "expected": {
+      "category": "order",
+      "replyLikely": false
+    }
+  },
+  {
+    "name": "meeting request",
+    "message": {
+      "from": "person@example.com",
+      "subject": "Schedule a call",
+      "text": "Could you meet next Tuesday? Please confirm."
+    },
+    "expected": {
+      "category": "meeting",
+      "replyLikely": true
+    }
+  },
+  {
+    "name": "support problem",
+    "message": {
+      "from": "customer@example.com",
+      "subject": "App not working",
+      "text": "Can you help with this error?"
+    },
+    "expected": {
+      "category": "support",
+      "replyLikely": true
+    }
+  },
+  {
+    "name": "security lure",
+    "message": {
+      "from": "alerts@example.net",
+      "subject": "Action required",
+      "text": "Verify your account. Click here immediately to confirm your identity."
+    },
+    "expected": {
+      "urgency": "high",
+      "suspiciousLanguage": true
+    }
+  },
+  {
+    "name": "benign security info",
+    "message": {
+      "from": "security@example.com",
+      "subject": "Security tips",
+      "text": "Never share your password or one-time code with anyone."
+    },
+    "expected": {
+      "category": "account",
+      "sensitiveDataMentioned": true
+    }
+  },
+  {
+    "name": "school assignment",
+    "message": {
+      "from": "teacher@example.edu",
+      "subject": "Assignment update",
+      "text": "Please review the homework before Friday."
+    },
+    "expected": {
+      "category": "school",
+      "replyLikely": true
+    }
+  },
+  {
+    "name": "contract review",
+    "message": {
+      "from": "legal@example.com",
+      "subject": "Agreement",
+      "text": "Please review the contract and let me know if you approve."
+    },
+    "expected": {
+      "category": "legal",
+      "replyLikely": true
+    }
+  },
+  {
+    "name": "newsletter",
+    "message": {
+      "from": "news@example.com",
+      "subject": "Weekly newsletter",
+      "text": "Here are this week's updates and articles."
+    },
+    "expected": {
+      "category": "general",
+      "replyLikely": false
+    }
+  },
+  {
+    "name": "refund",
+    "message": {
+      "from": "support@example.com",
+      "subject": "Refund processed",
+      "text": "Your refund of $15.00 has been processed."
+    },
+    "expected": {
+      "category": "payment",
+      "replyLikely": false
+    }
+  }
+]
