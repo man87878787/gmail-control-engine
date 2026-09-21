@@ -1,3 +1,4 @@
+function assertLocalUrl(value){const u=new URL(value);const local=["127.0.0.1","localhost","::1"].includes(u.hostname);if(!local&&process.env.ALLOW_REMOTE_AI_ENDPOINTS!=="1")throw new Error("Local model endpoint must use localhost unless ALLOW_REMOTE_AI_ENDPOINTS=1.");return u.toString().replace(/\/$/,"")}
 import { scrubObject } from "./privacy.mjs";
 function isLoopback(value){try{const h=new URL(value).hostname.toLowerCase();return h==="127.0.0.1"||h==="localhost"||h==="::1"||h==="[::1]"}catch{return false}}
 function extractJson(text){
@@ -21,7 +22,7 @@ export async function localJson({task,input,schema,model=process.env.OLLAMA_MODE
  const safeInput=(remote||process.env.LOCAL_MODEL_SCRUB==="1")?scrubObject(input):input;
  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeoutMs);
  try{
-  const r=await fetchImpl(baseUrl.replace(/\/$/,"")+"/api/generate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({model,prompt:buildJsonPrompt({task,input:safeInput,schema}),stream:false,format:"json",options:{temperature:0}}),signal:controller.signal});
+  const r=await fetchImpl(safeBase+"/api/generate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({model,prompt:buildJsonPrompt({task,input:safeInput,schema}),stream:false,format:"json",options:{temperature:0}}),signal:controller.signal});
   if(!r.ok)throw new Error("Local model HTTP "+r.status);
   const data=await r.json();return extractJson(data.response);
  }finally{clearTimeout(timer)}
