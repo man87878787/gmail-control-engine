@@ -31,3 +31,5 @@ The production assistant stores semantic indexes, staged actions, and Gmail hist
 The optional Gmail push endpoint is disabled unless `GMAIL_PUSH_TOKEN` is configured. If the push endpoint is exposed outside localhost, use TLS and a trusted ingress in addition to the token. The optional local-model and embedding integrations default to loopback/local endpoints; there is no automatic cloud fallback.
 
 Use `privacy.mjs` before writing untrusted payloads to logs or sending them outside the local trust boundary. Never assume heuristic phishing or priority classifications are infallible.
+
+Local model and embedding endpoints are restricted to loopback by default. Set `ALLOW_REMOTE_AI_ENDPOINTS=1` only when you deliberately trust a remote endpoint and understand that email content may leave the machine.
