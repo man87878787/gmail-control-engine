@@ -1,8 +1,8 @@
 {
   "name": "gmail-control-engine",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "Production-grade, local-first multi-account Gmail API queue and agent control plane.",
+  "description": "Local-first Gmail control plane with safe queueing, inbox intelligence, triage, thread understanding, and agent workflows.",
   "type": "module",
   "engines": {
     "node": ">=24"
@@ -10,8 +10,9 @@
   "scripts": {
     "start": "node src/server.mjs",
     "agent": "node src/agent.mjs",
-    "check": "node --check src/server.mjs && node --check src/store.mjs && node --check src/gmail.mjs && node --check src/worker.mjs && node --check src/utils.mjs && node --check src/job.mjs && node --check src/security.mjs && node --check src/agent.mjs",
-    "test": "node --test"
+    "check": "node --check src/server.mjs && node --check src/store.mjs && node --check src/gmail.mjs && node --check src/worker.mjs && node --check src/utils.mjs && node --check src/job.mjs && node --check src/security.mjs && node --check src/agent.mjs && node --check src/intelligence.mjs && node --check src/smart-agent.mjs",
+    "test": "node --test",
+    "smart": "node src/smart-agent.mjs"
   },
   "keywords": [
     "gmail",
@@ -20,7 +21,10 @@
     "oauth2",
     "sqlite",
     "automation",
-    "nodejs"
+    "nodejs",
+    "email-intelligence",
+    "email-triage",
+    "agent"
   ],
   "license": "MIT",
   "dependencies": {
