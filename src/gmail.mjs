@@ -10,6 +10,7 @@ import {
   publicError,
   sanitizeHeader,
 } from "./utils.mjs";
+import { withRetry } from "./retry.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -504,7 +505,7 @@ export async function modifyMessageLabels(accountId, messageId, addLabelIds = []
 
 export async function readThread(accountId, threadId) {
   const gmail = await api(accountId);
-  const { data } = await gmail.users.threads.get({ userId: "me", id: threadId, format: "full" });
+  const { data } = await withRetry(() => gmail.users.threads.get({ userId: "me", id: threadId, format: "full" }));
   return (data.messages || []).map((message) => {
     const h = headerMap(message.payload?.headers);
     const body = bodyFromPayload(message.payload);
@@ -530,16 +531,16 @@ export async function readThread(accountId, threadId) {
 export async function watchInbox(accountId, topicName) {
   if (!String(topicName || "").startsWith("projects/")) throw new Error("A Google Pub/Sub topic name is required.");
   const gmail = await api(accountId);
-  const { data } = await gmail.users.watch({
+  const { data } = await withRetry(() => gmail.users.watch({
     userId: "me",
-    requestBody: { topicName: String(topicName), labelIds: ["INBOX"], labelFilterBehavior: "include" },
-  });
+    requestBody: { topicName: String(topicName), labelIds: ["INBOX"], labelFilterBehavior: "INCLUDE" },
+  }));
   return { historyId: data.historyId || "", expiration: data.expiration || "" };
 }
 
 export async function stopInboxWatch(accountId) {
   const gmail = await api(accountId);
-  await gmail.users.stop({ userId: "me" });
+  await withRetry(() => gmail.users.stop({ userId: "me" }));
   return { ok: true };
 }
 
@@ -549,13 +550,13 @@ export async function historySince(accountId, startHistoryId) {
   const out = { historyId: String(startHistoryId), messagesAdded: [], messagesDeleted: [], labelsAdded: [], labelsRemoved: [] };
   let pageToken = "";
   do {
-    const { data } = await gmail.users.history.list({
+    const { data } = await withRetry(() => gmail.users.history.list({
       userId: "me",
       startHistoryId: String(startHistoryId),
       historyTypes: ["messageAdded", "messageDeleted", "labelAdded", "labelRemoved"],
       maxResults: 500,
       ...(pageToken ? { pageToken } : {}),
-    });
+    }));
     for (const row of data.history || []) {
       out.messagesAdded.push(...(row.messagesAdded || []));
       out.messagesDeleted.push(...(row.messagesDeleted || []));
@@ -570,7 +571,7 @@ export async function historySince(accountId, startHistoryId) {
 
 export async function trashMessage(accountId, messageId) {
   const gmail = await api(accountId);
-  const { data } = await gmail.users.messages.trash({ userId: "me", id: messageId });
+  const { data } = await withRetry(() => gmail.users.messages.trash({ userId: "me", id: messageId }));
   return { id: data.id || messageId, threadId: data.threadId || "", labelIds: data.labelIds || [] };
 }
 
