@@ -1,3 +1,4 @@
+function assertLocalUrl(value){const u=new URL(value);const local=["127.0.0.1","localhost","::1"].includes(u.hostname);if(!local&&process.env.ALLOW_REMOTE_AI_ENDPOINTS!=="1")throw new Error("Embedding endpoint must use localhost unless ALLOW_REMOTE_AI_ENDPOINTS=1.");return u.toString().replace(/\/$/,"")}
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -29,13 +30,13 @@ export function cosine(a,b){let dot=0,aa=0,bb=0;const n=Math.min(a.length,b.leng
 export async function embedText(text,{provider=process.env.LOCAL_EMBEDDING_PROVIDER||"hash",fetchImpl=fetch}={}){
  if(provider==="hash")return hashEmbedding(text);
  if(provider==="ollama"){
-  const base=(process.env.OLLAMA_URL||"http://127.0.0.1:11434").replace(/\/$/,"");
+  const base=assertLocalUrl(process.env.OLLAMA_URL||"http://127.0.0.1:11434");
   const model=process.env.OLLAMA_EMBED_MODEL||"nomic-embed-text";
   const r=await fetchImpl(base+"/api/embed",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({model,input:String(text||"")})});
   if(!r.ok)throw new Error("Ollama embedding HTTP "+r.status);const j=await r.json();const v=j.embeddings?.[0]||j.embedding;if(!Array.isArray(v))throw new Error("Embedding response missing vector.");return v;
  }
  if(provider==="http"){
-  const url=process.env.LOCAL_EMBEDDING_URL;if(!url)throw new Error("LOCAL_EMBEDDING_URL is required.");
+  const raw=process.env.LOCAL_EMBEDDING_URL;if(!raw)throw new Error("LOCAL_EMBEDDING_URL is required.");const url=assertLocalUrl(raw);
   const r=await fetchImpl(url,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({input:String(text||"")})});
   if(!r.ok)throw new Error("Embedding HTTP "+r.status);const j=await r.json();const v=j.embedding||j.embeddings?.[0];if(!Array.isArray(v))throw new Error("Embedding response missing vector.");return v;
  }
