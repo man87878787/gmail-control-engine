@@ -1,8 +1,8 @@
 {
   "name": "gmail-control-engine",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "private": true,
-  "description": "Local-first Gmail control plane with safe queueing, inbox intelligence, triage, thread understanding, and agent workflows.",
+  "description": "Local-first Gmail assistant with semantic memory, safe staged actions, thread graphs, push ingestion, privacy guardrails, plugins, and adversarial tests.",
   "type": "module",
   "engines": {
     "node": ">=24"
@@ -10,9 +10,10 @@
   "scripts": {
     "start": "node src/server.mjs",
     "agent": "node src/agent.mjs",
-    "check": "node --check src/server.mjs && node --check src/store.mjs && node --check src/gmail.mjs && node --check src/worker.mjs && node --check src/utils.mjs && node --check src/job.mjs && node --check src/security.mjs && node --check src/agent.mjs && node --check src/intelligence.mjs && node --check src/smart-agent.mjs",
+    "check": "node --check src/server.mjs && node --check src/store.mjs && node --check src/gmail.mjs && node --check src/worker.mjs && node --check src/utils.mjs && node --check src/job.mjs && node --check src/security.mjs && node --check src/agent.mjs && node --check src/intelligence.mjs && node --check src/smart-agent.mjs && node --check src/privacy.mjs && node --check src/retry.mjs && node --check src/thread-graph.mjs && node --check src/plugin-bus.mjs && node --check src/local-model.mjs && node --check src/semantic-store.mjs && node --check src/action-store.mjs && node --check src/action-executor.mjs && node --check src/unified-inbox.mjs && node --check src/ingestion.mjs && node --check src/assistant-api.mjs && node --check src/benchmark.mjs",
     "test": "node --test",
-    "smart": "node src/smart-agent.mjs"
+    "smart": "node src/smart-agent.mjs",
+    "benchmark": "node src/benchmark.mjs"
   },
   "keywords": [
     "gmail",
@@ -24,7 +25,11 @@
     "nodejs",
     "email-intelligence",
     "email-triage",
-    "agent"
+    "agent",
+    "semantic-search",
+    "human-in-the-loop",
+    "privacy",
+    "pubsub"
   ],
   "license": "MIT",
   "dependencies": {
