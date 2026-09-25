@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "command_id": "startdc-20260925-1924-01",
-  "issued_at": "2026-09-25T19:24:00Z",
-  "expires_at": "2026-09-25T19:38:00Z",
-  "action": "start_desktop_commander",
+  "command_id": "idle-20260925-1929-01",
+  "issued_at": "2026-09-25T19:29:00Z",
+  "expires_at": "2026-09-25T19:29:01Z",
+  "action": "noop",
   "args": {}
 }
