@@ -1,8 +1,12 @@
 {
   "version": 1,
-  "command_id": "startdc-20260925-2152-03",
-  "issued_at": "2026-09-25T21:52:00Z",
-  "expires_at": "2026-09-25T22:06:00Z",
-  "action": "start_desktop_commander",
-  "args": {}
+  "command_id": "bootstrap1m-20260925-2153-01",
+  "issued_at": "2026-09-25T21:53:00Z",
+  "expires_at": "2026-09-25T22:08:00Z",
+  "action": "configure_job",
+  "args": {
+    "id": "dc_bootstrap_1m",
+    "type": "start_desktop_commander",
+    "interval_minutes": 1
+  }
 }
