@@ -1,10 +1,8 @@
 {
   "version": 1,
-  "command_id": "rmtestjob-20260925-222040-01",
-  "issued_at": "2026-09-25T22:20:40Z",
-  "expires_at": "2026-09-25T22:34:40Z",
-  "action": "remove_job",
-  "args": {
-    "id": "test_wake"
-  }
+  "command_id": "idle-20260925-222100-03",
+  "issued_at": "2026-09-25T22:21:00Z",
+  "expires_at": "2026-09-25T22:21:01Z",
+  "action": "noop",
+  "args": {}
 }
