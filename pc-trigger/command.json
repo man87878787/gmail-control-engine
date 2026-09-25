@@ -1,10 +1,12 @@
 {
   "version": 1,
-  "command_id": "testpoll1m-20260925-221311-01",
-  "issued_at": "2026-09-25T22:13:11Z",
-  "expires_at": "2026-09-25T22:27:11Z",
-  "action": "set_poll_interval",
+  "command_id": "testjob-20260925-222007-01",
+  "issued_at": "2026-09-25T22:20:07Z",
+  "expires_at": "2026-09-25T22:34:07Z",
+  "action": "configure_job",
   "args": {
-    "minutes": 1
+    "id": "test_wake",
+    "type": "start_desktop_commander",
+    "interval_minutes": 1440
   }
 }
